@@ -1,0 +1,31 @@
+# Dependencies and generated output
+node_modules/
+build/
+dist/
+.vite/
+.react-router/
+.cache/
+
+# Local Shopify and database state
+.shopify/
+.shopify.lock
+*.sqlite
+*.sqlite-journal
+
+# Assets rebuilt by shopify_extension/11x-sales/scripts/sync-widget.mjs
+shopify_extension/11x-sales/extensions/chat-widget/assets/chatWidget.js
+shopify_extension/11x-sales/extensions/chat-widget/assets/chatWidgetBootstrap.js
+shopify_extension/11x-sales/extensions/chat-widget/assets/chat-design.json
+
+# Local settings and credentials
+.env
+.env.*
+.aws/
+.codex/
+.agents/
+.vscode/
+.DS_Store
+*.log
+
+# Backup of the app's previous standalone Git history
+.git-11x-sales-backup/

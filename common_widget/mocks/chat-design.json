@@ -1,0 +1,32 @@
+{
+  "data": {
+    "aiAgentName": "Demo Assistant",
+    "chatFace": "https://11xsales.nyc3.cdn.digitaloceanspaces.com/chat-design/5a3f3f9b-d6a0-4195-a77e-f4751534bcc1/40490f33-2719-4679-94a5-3634be3851f9.png",
+    "welcomeMessage": "Welcome! Ask me about our shoes.",
+    "predefinedMessages": ["Show new arrivals", "Track my order", "Help with sizing"],
+    "placeholderMessage": "Type your question here...",
+    "disclaimerMessage": "Demo data: changed for verification.",
+    "primaryColor": "#7C3AED",
+    "notificationColor": "#F59E0B",
+    "chatBubbleType": "classic-bar",
+    "showOnMobile": true,
+    "showOnDesktopTablet": true,
+    "pageVisibility": "all",
+    "excludePages": "/checkout, /products/avenno-sandal-black",
+    "bubbleSize": 60,
+    "position": "right",
+    "moveLeftRight": 30,
+    "moveUpDown": 30,
+    "zIndex": 1000,
+    "connectWhatsApp": true,
+    "connectInstagram": true,
+    "leadStatus": "ask-before-chat",
+    "leadTitle": "Get 10% off",
+    "leadSubtitle": "Leave your email and we will send a code.",
+    "sendButtonLabel": "Go",
+    "emailPlaceholder": "you@example.com",
+    "marketingConsent": "ask-marketing",
+    "consentCheckboxDefault": "unchecked",
+    "marketingConsentText": "Send me offers and product news. I can unsubscribe anytime."
+  }
+}

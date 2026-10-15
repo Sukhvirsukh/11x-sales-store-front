@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Design system smoke test</title>
+  </head>
+  <body>
+    <output id="result">pending</output>
+    <script type="module">
+      import ChatWidget from "../src/index.js";
+      var widget = ChatWidget.init({
+        config: { primaryColor: "#16181D", chatBubbleType: "compact-bar", bubbleSize: 55 },
+      });
+      Promise.all([widget.ready, widget.styleReady]).then(function (values) {
+        var root = widget.root;
+        var launcher = widget.launcher;
+        var checks = {
+          cssLoaded: values[1],
+          semanticColor: getComputedStyle(root).getPropertyValue("--x11-sales-color-primary").trim() === "#16181D",
+          componentColor: getComputedStyle(launcher).backgroundColor === "rgb(22, 24, 29)",
+          positioned: getComputedStyle(root).right !== "auto",
+        };
+
+        widget.setFields({ primaryColor: "#f9f9f9", chatBubbleType: "compact-bar" });
+        checks.lightPrimaryHasDarkText = getComputedStyle(launcher).color === "rgb(0, 0, 0)";
+
+        widget.setStatus("loading");
+        checks.loading = widget.sendBtn.disabled && widget.panel.getAttribute("aria-busy") === "true" && !widget.statusEl.hidden;
+        widget.setStatus("error", "Failed to send");
+        checks.error = widget.input.getAttribute("aria-invalid") === "true" && widget.statusEl.textContent === "Failed to send";
+        widget.setStatus("idle");
+        checks.idle = widget.statusEl.hidden && !widget.input.hasAttribute("aria-invalid");
+
+        widget.open();
+        var bounds = widget.panel.getBoundingClientRect();
+        checks.panelWithinViewport = bounds.left >= 0 && bounds.right <= innerWidth + 1;
+        checks.panelWithinHeight = bounds.top >= 0 && bounds.bottom <= innerHeight + 1;
+        widget.settings.onSend = function () { return Promise.resolve(); };
+        widget._send("Test message");
+        checks.promiseLoading = widget.status === "loading";
+        Promise.resolve().then(function () {
+          checks.promiseIdle = widget.status === "idle";
+          document.getElementById("result").textContent = JSON.stringify(checks);
+        });
+      }).catch(function (error) {
+        document.getElementById("result").textContent = "ERROR: " + error.message;
+      });
+    </script>
+  </body>
+</html>

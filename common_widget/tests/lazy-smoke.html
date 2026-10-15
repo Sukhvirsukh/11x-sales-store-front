@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Lazy widget smoke test</title>
+  </head>
+  <body>
+    <output id="result">pending</output>
+    <script
+      src="/build/chatWidgetBootstrap.js"
+      data-widget-url="/build/chatWidget.js"
+      data-config-url="/mocks/chat-design.json"
+      defer
+    ></script>
+    <script>
+      addEventListener("load", async () => {
+        const result = document.getElementById("result");
+        try {
+          const bootstrap = await ChatWidgetBootstrap.init({
+            widgetUrl: "/build/chatWidget.js",
+            configUrl: "/mocks/chat-design.json",
+          });
+          await bootstrap.ready;
+          const checks = {
+            smallBundleFirst: !window.ChatWidget,
+            configLoaded: bootstrap.fields?.data?.aiAgentName === "Demo Assistant" ||
+              bootstrap.fields?.aiAgentName === "Demo Assistant",
+            launcherVisible: !bootstrap.button.hidden,
+          };
+          await bootstrap.open();
+          checks.coreLoadedOnOpen = !!window.ChatWidget;
+          checks.panelOpen = bootstrap.widget?.opened === true;
+          checks.oneWidget = document.querySelectorAll("x11-sales-chat").length === 1;
+          result.textContent = JSON.stringify(checks);
+        } catch (error) {
+          result.textContent = `ERROR: ${error.message}`;
+        }
+      });
+    </script>
+  </body>
+</html>

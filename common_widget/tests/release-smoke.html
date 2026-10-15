@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Widget release smoke test</title>
+    <style>
+      button { background: hotpink !important; color: lime !important; }
+    </style>
+  </head>
+  <body>
+    <output id="result">pending</output>
+    <script src="../dist/chatWidgetLoader.js"></script>
+    <script>
+      const version = new URLSearchParams(location.search).get("version") || "1.3.2";
+      ChatWidgetLoader.load({
+        version,
+        assetBaseUrl: "../dist/",
+        config: { aiAgentName: "Smoke test", primaryColor: "#16181D" },
+      }).then(function (first) {
+        return ChatWidgetLoader.load({ version }).then(function (second) {
+          var launcher = first.launcher;
+          var checks = {
+            sameInstance: first === second,
+            oneHost: document.querySelectorAll(first.host.localName).length === 1,
+            internalStylesheet: !!first.shadowRoot.querySelector('style, link[rel="stylesheet"]'),
+            isolatedButtonColor: getComputedStyle(launcher).backgroundColor === "rgb(22, 24, 29)",
+            releaseVersion: ChatWidget.version === version,
+            initiallyHidden: getComputedStyle(first.panel).display === "none",
+          };
+          launcher.click();
+          checks.opens = first.opened && !first.panel.hidden;
+          checks.launcherStaysVisible = getComputedStyle(launcher).visibility === "visible" &&
+            getComputedStyle(launcher).opacity === "1" &&
+            first.panel.getBoundingClientRect().bottom <= launcher.getBoundingClientRect().top + 1;
+          launcher.click();
+          checks.launcherCloses = !first.opened;
+          first.open();
+          document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+          checks.closes = !first.opened;
+          return new Promise(function (resolve) { setTimeout(resolve, 220); }).then(function () {
+            checks.panelVisuallyClosed = first.panel.hidden && getComputedStyle(first.panel).display === "none";
+            first.open();
+            first.closeBtn.click();
+            checks.closeButtonWorks = !first.opened;
+            return new Promise(function (resolve) { setTimeout(resolve, 220); }).then(function () {
+              checks.closeButtonVisuallyCloses = first.panel.hidden && getComputedStyle(first.panel).display === "none";
+              first.destroy();
+              return ChatWidgetLoader.load({ version, assetBaseUrl: "../dist/", config: { primaryColor: "#16181D" } })
+                .then(function (third) {
+                  checks.remountsAfterDestroy = third !== first && document.querySelectorAll(third.host.localName).length === 1;
+                  document.getElementById("result").textContent = JSON.stringify(checks);
+                });
+            });
+          });
+        });
+      }).catch(function (error) {
+        document.getElementById("result").textContent = "ERROR: " + error.message;
+      });
+    </script>
+  </body>
+</html>

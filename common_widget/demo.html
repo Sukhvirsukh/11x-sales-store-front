@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>11x Sales chat widget demo</title>
+    <style>
+      /* Styles for the demo page only — not part of the widget. */
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: #0f172a;
+        background: #f8fafc;
+      }
+      main {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 64px 24px;
+      }
+      h1 {
+        font-size: 28px;
+      }
+      code {
+        background: #e2e8f0;
+        padding: 2px 6px;
+        border-radius: 6px;
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 24px;
+      }
+      .controls button {
+        font: inherit;
+        padding: 8px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 999px;
+        background: #fff;
+        cursor: pointer;
+      }
+      pre {
+        margin-top: 24px;
+        padding: 16px;
+        overflow: auto;
+        border-radius: 10px;
+        background: #0f172a;
+        color: #e2e8f0;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>11x Sales chat widget demo</h1>
+      <p>
+        The widget mirrors the in-app chatbox exactly — header with the Active
+        badge, 10px message bubbles, quick replies, the 42px input, and the bot
+        feedback row — minus the admin-only "Create correction" action.
+      </p>
+      <p>
+        Configuration is loaded from <code>mocks/chat-design.json</code>.
+        Chat replies on this page are local demo responses.
+      </p>
+
+      <div class="controls">
+        <button data-bubble="compact-bar" type="button">Compact bar</button>
+        <button data-bubble="type-bar" type="button">Type bar</button>
+        <button data-bubble="classic-bar" type="button">Classic bar</button>
+        <button data-bubble="custom" type="button">Custom bar</button>
+        <button data-color="#2F6DF3" type="button">Default blue</button>
+        <button data-color="#16a34a" type="button">Green primary</button>
+        <button data-move="left" type="button">Move left</button>
+        <button data-status="loading" type="button">Preview sending</button>
+        <button data-status="error" type="button">Preview error</button>
+        <button data-status="idle" type="button">Clear status</button>
+      </div>
+
+      <pre id="fields"></pre>
+    </main>
+
+    <script type="module">
+      import ChatWidget from "./src/index.js";
+
+      var CHAT_DESIGN_URL = "/mocks/chat-design.json";
+
+      async function sendChatMessage(message, widget) {
+        widget.addMessage("Demo reply to: " + message, "bot");
+      }
+
+      var widget = ChatWidget.init({
+        configUrl: CHAT_DESIGN_URL,
+        onSend: sendChatMessage,
+        onLike: function (id) {
+          console.log("liked", id);
+        },
+        onDislike: function (id) {
+          console.log("disliked", id);
+        },
+        onImageUpload: function (files) {
+          console.log("attach", files);
+        },
+      });
+
+      widget.ready.then(function () {
+        document.getElementById("fields").textContent = JSON.stringify(
+          widget.fields,
+          null,
+          2,
+        );
+      });
+
+      function update(patch) {
+        var fields = Object.assign({}, widget.fields, patch);
+        widget.setFields(fields);
+        document.getElementById("fields").textContent = JSON.stringify(
+          fields,
+          null,
+          2,
+        );
+      }
+
+      document.addEventListener("click", function (event) {
+        var button = event.target.closest(
+          "button[data-bubble], button[data-color], button[data-move], button[data-status]",
+        );
+        if (!button) return;
+        if (button.dataset.bubble)
+          update({ chatBubbleType: button.dataset.bubble });
+        if (button.dataset.color)
+          update({ primaryColor: button.dataset.color });
+        if (button.dataset.move) update({ position: button.dataset.move });
+        if (button.dataset.status) widget.setStatus(button.dataset.status);
+      });
+    </script>
+  </body>
+</html>

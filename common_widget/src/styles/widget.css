@@ -1,0 +1,957 @@
+/**
+ * chatWidget.css — styles for the chatWidget chat box.
+ *
+ * This mirrors the in-app chatbox (`src/components/shared/chatBox/`) one-to-one:
+ * same tokens, radii, spacing, type sizes and colors as ChatBox / ChatMessage /
+ * ChatInput — minus the "Create correction" affordance, which is admin-only.
+ *
+ * It is loaded into the widget's Shadow DOM. Tokens are scoped to .x11-sales-root.
+ * Merchant colors are mapped to semantic tokens by chatWidget.js.
+ */
+
+:host {
+  all: initial;
+  display: block;
+  width: 0;
+  height: 0;
+}
+
+.x11-sales-root {
+  /* Primitives: base values, independent of meaning. */
+  --x11-sales-p-white: #ffffff;
+  --x11-sales-p-black: #000000;
+  --x11-sales-p-gray-100: #f1f1f1;
+  --x11-sales-p-gray-200: #eeeeee;
+  --x11-sales-p-gray-400: #9f9f9f;
+  --x11-sales-p-gray-500: #808080;
+  --x11-sales-p-slate-100: #e2e8f0;
+  --x11-sales-p-slate-500: #64748b;
+  --x11-sales-p-slate-900: #0f172a;
+  --x11-sales-p-field: #f7f8fb;
+  --x11-sales-p-blue-500: #2f6df3;
+  --x11-sales-p-blue-400: #60a5fa;
+  --x11-sales-p-blue-600: #2563eb;
+  --x11-sales-p-green-100: #e5ffd8;
+  --x11-sales-p-green-700: #127557;
+  --x11-sales-p-red-600: #b42318;
+  --x11-sales-p-red-100: #fef3f2;
+  --x11-sales-p-notification: #ff4d4f;
+  --x11-sales-p-space-1: 4px;
+  --x11-sales-p-space-1-5: 6px;
+  --x11-sales-p-space-2: 8px;
+  --x11-sales-p-space-2-5: 10px;
+  --x11-sales-p-space-3: 12px;
+  --x11-sales-p-space-4: 16px;
+  --x11-sales-p-space-4-5: 18px;
+  --x11-sales-p-space-5: 20px;
+  --x11-sales-p-space-6: 24px;
+  --x11-sales-p-text-xs: 11px;
+  --x11-sales-p-text-sm: 12px;
+  --x11-sales-p-text-base: 14px;
+  --x11-sales-p-text-lg: 16px;
+  --x11-sales-p-radius-sm: 6px;
+  --x11-sales-p-radius-md: 10px;
+  --x11-sales-p-radius-lg: 12px;
+  --x11-sales-p-radius-xl: 16px;
+  --x11-sales-p-radius-full: 999px;
+  --x11-sales-p-duration-fast: 160ms;
+  --x11-sales-p-shadow-launcher:
+    0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --x11-sales-p-shadow-panel:
+    0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  /* Semantic: purpose. JS overrides the four merchant color tokens. */
+  --x11-sales-color-surface: var(--x11-sales-p-white);
+  --x11-sales-color-text: var(--x11-sales-p-black);
+  --x11-sales-color-text-strong: var(--x11-sales-p-slate-900);
+  --x11-sales-color-text-muted: var(--x11-sales-p-slate-500);
+  --x11-sales-color-placeholder: var(--x11-sales-p-gray-500);
+  --x11-sales-color-subtle-surface: var(--x11-sales-p-gray-100);
+  --x11-sales-color-field-surface: var(--x11-sales-p-field);
+  --x11-sales-color-border: var(--x11-sales-p-slate-100);
+  --x11-sales-color-focus: var(--x11-sales-p-blue-600);
+  --x11-sales-color-primary: var(--x11-sales-p-blue-500);
+  --x11-sales-color-primary-contrast: var(--x11-sales-p-white);
+  --x11-sales-color-primary-tint: rgb(47 109 243 / 0.13);
+  --x11-sales-color-notification: var(--x11-sales-p-notification);
+  --x11-sales-color-success: var(--x11-sales-p-green-700);
+  --x11-sales-color-success-surface: var(--x11-sales-p-green-100);
+  --x11-sales-color-error: var(--x11-sales-p-red-600);
+  --x11-sales-color-error-surface: var(--x11-sales-p-red-100);
+  --x11-sales-color-message-bot: rgb(238 238 238 / 0.18);
+  --x11-sales-color-message-user: rgb(159 159 159 / 0.2);
+  --x11-sales-color-message-border: rgb(0 0 0 / 0.042);
+  --x11-sales-color-section-border: rgb(226 232 240 / 0.6);
+  --x11-sales-color-input-border: rgb(53 118 243 / 0.2);
+  --x11-sales-color-input-focus-shadow: rgb(96 165 250 / 0.2);
+  --x11-sales-space-control: var(--x11-sales-p-space-2);
+  --x11-sales-space-content: var(--x11-sales-p-space-2-5);
+  --x11-sales-space-section: var(--x11-sales-p-space-4-5);
+  --x11-sales-space-panel: var(--x11-sales-p-space-5);
+  --x11-sales-font-body:
+    "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  --x11-sales-font-size-body: var(--x11-sales-p-text-base);
+  --x11-sales-font-size-caption: var(--x11-sales-p-text-xs);
+  --x11-sales-font-size-label: var(--x11-sales-p-text-sm);
+  --x11-sales-font-size-title: var(--x11-sales-p-text-lg);
+  --x11-sales-focus-width: 2px;
+  --x11-sales-focus-offset: 2px;
+  --x11-sales-opacity-disabled: 0.45;
+  --x11-sales-duration-interactive: var(--x11-sales-p-duration-fast);
+
+  /* Component tokens: references used by the rules below. */
+  --x11-sales-launcher-bg: var(--x11-sales-color-primary);
+  --x11-sales-launcher-text: var(--x11-sales-color-primary-contrast);
+  --x11-sales-launcher-bar-bg: var(--x11-sales-color-surface);
+  --x11-sales-launcher-bar-border: var(--x11-sales-color-border);
+  --x11-sales-launcher-bar-text: var(--x11-sales-color-placeholder);
+  --x11-sales-launcher-badge-bg: var(--x11-sales-color-notification);
+  --x11-sales-panel-bg: var(--x11-sales-color-surface);
+  --x11-sales-panel-text: var(--x11-sales-color-text);
+  --x11-sales-panel-header-bg: var(--x11-sales-color-primary-tint);
+  --x11-sales-message-bot-bg: var(--x11-sales-color-message-bot);
+  --x11-sales-message-user-bg: var(--x11-sales-color-message-user);
+  --x11-sales-input-bg: var(--x11-sales-color-field-surface);
+  --x11-sales-input-border: var(--x11-sales-color-input-border);
+  --x11-sales-input-text: var(--x11-sales-color-text-strong);
+  --x11-sales-send-bg: var(--x11-sales-color-primary);
+  --x11-sales-send-text: var(--x11-sales-color-primary-contrast);
+  --x11-sales-status-error-bg: var(--x11-sales-color-error-surface);
+  --x11-sales-status-error-text: var(--x11-sales-color-error);
+  --x11-sales-panel-width: 320px;
+  --x11-sales-panel-height: 640px;
+
+  /* Layout settings from chat-design. */
+  --x11-sales-size: 56px; /* bubbleSize */
+  --x11-sales-offset-x: 20px; /* moveLeftRight */
+  --x11-sales-offset-y: 20px; /* moveUpDown */
+  --x11-sales-z: 2147483000; /* zIndex */
+  --x11-sales-keyboard-inset: 0px;
+  --x11-sales-viewport-height: 100dvh;
+
+  position: fixed;
+  bottom: calc(
+    var(--x11-sales-offset-y) + env(safe-area-inset-bottom, 0px) +
+      var(--x11-sales-keyboard-inset)
+  );
+  z-index: var(--x11-sales-z);
+  font-family: var(--x11-sales-font-body);
+  font-size: var(--x11-sales-font-size-body);
+  line-height: 1.0625rem;
+  color: var(--x11-sales-panel-text);
+}
+
+.x11-sales-root[hidden] {
+  display: none !important;
+}
+
+.x11-sales-root,
+.x11-sales-root * {
+  box-sizing: border-box;
+}
+
+.x11-sales-root--right {
+  right: calc(
+    clamp(
+        8px,
+        var(--x11-sales-offset-x),
+        max(8px, 100vw - var(--x11-sales-panel-width) - 8px)
+      ) +
+      env(safe-area-inset-right, 0px)
+  );
+}
+
+.x11-sales-root--left {
+  left: calc(
+    clamp(
+        8px,
+        var(--x11-sales-offset-x),
+        max(8px, 100vw - var(--x11-sales-panel-width) - 8px)
+      ) +
+      env(safe-area-inset-left, 0px)
+  );
+}
+
+/* ---------------------------------------------------------------------------
+   Launcher — shapes mirror `features/visibility/preview/ChatButton.tsx`
+   --------------------------------------------------------------------------- */
+
+.x11-sales-launcher {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 0 0 0 auto;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  box-shadow: var(--x11-sales-p-shadow-launcher);
+  transition: transform var(--x11-sales-duration-interactive) ease;
+}
+
+.x11-sales-root--left .x11-sales-launcher {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.x11-sales-launcher:hover {
+  transform: translateY(-1px);
+}
+
+.x11-sales-launcher:active {
+  transform: translateY(0);
+}
+
+.x11-sales-launcher:focus-visible {
+  outline: var(--x11-sales-focus-width) solid var(--x11-sales-color-focus);
+  outline-offset: var(--x11-sales-focus-offset);
+}
+
+/* Compact bar — square icon button on the accent color */
+.x11-sales-launcher--compact-bar {
+  justify-content: center;
+  width: var(--x11-sales-size);
+  height: var(--x11-sales-size);
+  border-radius: var(--x11-sales-p-radius-lg);
+  background: var(--x11-sales-launcher-bg);
+  color: var(--x11-sales-launcher-text);
+}
+
+.x11-sales-launcher--compact-bar svg {
+  width: 45%;
+  height: 45%;
+}
+
+/* Bar launchers — white surface card with an 11px muted label */
+.x11-sales-launcher--type-bar,
+.x11-sales-launcher--classic-bar,
+.x11-sales-launcher--custom {
+  gap: var(--x11-sales-space-control);
+  width: 260px;
+  max-width: calc(100vw - 2 * var(--x11-sales-p-space-2));
+  height: max(calc(var(--x11-sales-size) * 0.65), 40px);
+  padding: 0 var(--x11-sales-p-space-3);
+  border: 1px solid var(--x11-sales-launcher-bar-border);
+  background: var(--x11-sales-launcher-bar-bg);
+  color: var(--x11-sales-launcher-bar-text);
+}
+
+.x11-sales-launcher--type-bar {
+  border-radius: var(--x11-sales-p-radius-xl);
+}
+
+.x11-sales-launcher--classic-bar {
+  border-radius: var(--x11-sales-p-radius-full);
+}
+
+.x11-sales-launcher--custom {
+  border-radius: var(--x11-sales-p-space-2);
+}
+
+.x11-sales-launcher__dot {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--x11-sales-launcher-bg);
+  opacity: 0.55;
+}
+
+.x11-sales-launcher--custom .x11-sales-launcher__dot {
+  width: 8px;
+  height: 8px;
+  opacity: 1;
+}
+
+.x11-sales-launcher--classic-bar .x11-sales-launcher__dot {
+  display: none;
+}
+
+.x11-sales-launcher__label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--x11-sales-color-placeholder);
+}
+
+.x11-sales-launcher--classic-bar .x11-sales-launcher__label {
+  text-align: center;
+}
+
+.x11-sales-launcher__send {
+  display: none;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--x11-sales-launcher-bg);
+  color: var(--x11-sales-launcher-text);
+}
+
+.x11-sales-launcher--classic-bar .x11-sales-launcher__send {
+  display: flex;
+}
+
+.x11-sales-launcher__send svg {
+  width: 12px;
+  height: 12px;
+}
+
+.x11-sales-launcher__badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--x11-sales-color-surface);
+  border-radius: 50%;
+  background: var(--x11-sales-launcher-badge-bg);
+}
+
+.x11-sales-launcher--type-bar .x11-sales-launcher__badge,
+.x11-sales-launcher--classic-bar .x11-sales-launcher__badge,
+.x11-sales-launcher--custom .x11-sales-launcher__badge {
+  top: -4px;
+  right: -4px;
+}
+
+/* ---------------------------------------------------------------------------
+   Panel — geometry mirrors the Visibility preview
+   --------------------------------------------------------------------------- */
+
+.x11-sales-panel {
+  position: absolute;
+  bottom: calc(var(--x11-sales-size) + var(--x11-sales-p-space-3));
+  display: flex;
+  flex-direction: column;
+  width: min(
+    var(--x11-sales-panel-width),
+    calc(100vw - 2 * var(--x11-sales-p-space-2))
+  );
+  height: var(--x11-sales-panel-height);
+  max-height: max(
+    0px,
+    calc(
+      var(--x11-sales-viewport-height) - var(--x11-sales-offset-y) -
+        env(safe-area-inset-bottom, 0px) - var(--x11-sales-size) -
+        var(--x11-sales-p-space-5)
+    )
+  );
+  overflow: hidden;
+  background: var(--x11-sales-panel-bg);
+  border-radius: var(--x11-sales-p-radius-md);
+  box-shadow: var(--x11-sales-p-shadow-panel);
+  animation: x11-sales-pop 0.18s ease-out;
+}
+
+.x11-sales-panel[hidden] {
+  display: none !important;
+}
+
+.x11-sales-root--right .x11-sales-panel {
+  right: 0;
+  transform-origin: bottom right;
+}
+
+.x11-sales-root--left .x11-sales-panel {
+  left: 0;
+  transform-origin: bottom left;
+}
+
+.x11-sales-panel--closing {
+  animation: x11-sales-pop-out 0.18s ease-in forwards;
+}
+
+@media (min-width: 768px) {
+  .x11-sales-root {
+    --x11-sales-panel-width: 410px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Header — tinted with the primary color, agent name + Active badge
+   --------------------------------------------------------------------------- */
+
+.x11-sales-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 0 0 auto;
+  gap: var(--x11-sales-space-control);
+  padding: var(--x11-sales-space-panel) var(--x11-sales-space-panel) 15px;
+  background: var(--x11-sales-panel-header-bg);
+}
+
+.x11-sales-header__main {
+  display: flex;
+  align-items: center;
+  gap: var(--x11-sales-space-control);
+  min-width: 0;
+}
+
+.x11-sales-header__avatar {
+  flex: 0 0 auto;
+  width: 24px;
+  height: 24px;
+  object-fit: cover;
+}
+
+.x11-sales-header__avatar[hidden] {
+  display: none;
+}
+
+.x11-sales-header__name {
+  display: flex;
+  align-items: center;
+  gap: var(--x11-sales-space-content);
+  min-width: 0;
+}
+
+.x11-sales-header__title {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--x11-sales-font-size-title);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.25rem;
+  color: var(--x11-sales-color-text);
+}
+
+.x11-sales-header__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--x11-sales-p-space-1-5);
+  flex: 0 0 auto;
+  padding: var(--x11-sales-p-space-1) var(--x11-sales-space-control);
+  border-radius: var(--x11-sales-p-radius-md);
+  background: var(--x11-sales-color-success-surface);
+  color: var(--x11-sales-color-success);
+  font-size: var(--x11-sales-font-size-label);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+.x11-sales-header__badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--x11-sales-color-success);
+}
+
+.x11-sales-header__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--x11-sales-color-placeholder);
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+  transition: color var(--x11-sales-duration-interactive) ease;
+}
+
+.x11-sales-header__close:hover {
+  color: var(--x11-sales-color-text);
+}
+
+.x11-sales-header__close:focus-visible {
+  outline: var(--x11-sales-focus-width) solid var(--x11-sales-color-focus);
+  outline-offset: var(--x11-sales-focus-offset);
+}
+
+.x11-sales-header__close svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ---------------------------------------------------------------------------
+   Messages — 10px radius bubbles, message-bot/message-user tints
+   --------------------------------------------------------------------------- */
+
+.x11-sales-messages {
+  display: flex;
+  flex-direction: column;
+  gap: var(--x11-sales-space-control);
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: var(--x11-sales-space-content) var(--x11-sales-space-section);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.x11-sales-message {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--x11-sales-space-control);
+  width: 100%;
+}
+
+.x11-sales-message--user {
+  justify-content: flex-end;
+}
+
+.x11-sales-message--bot {
+  justify-content: flex-start;
+}
+
+.x11-sales-message__body {
+  position: relative;
+  min-width: 0;
+}
+
+.x11-sales-message--user .x11-sales-message__body {
+  max-width: 227px;
+}
+
+.x11-sales-message--bot .x11-sales-message__body {
+  width: fit-content;
+  max-width: 100%;
+}
+
+.x11-sales-message--product .x11-sales-message__body {
+  width: 100%;
+}
+
+.x11-sales-bubble {
+  padding: var(--x11-sales-space-content);
+  border: 1px solid var(--x11-sales-color-message-border);
+  border-radius: var(--x11-sales-p-radius-md);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.x11-sales-message--bot .x11-sales-bubble {
+  background: var(--x11-sales-message-bot-bg);
+  color: var(--x11-sales-color-text);
+}
+
+.x11-sales-message--user .x11-sales-bubble {
+  background: var(--x11-sales-message-user-bg);
+  color: var(--x11-sales-color-text);
+  overflow-wrap: anywhere;
+}
+
+.x11-sales-bubble__text {
+  margin: 0;
+  font-size: var(--x11-sales-font-size-label);
+  line-height: 20px;
+  white-space: pre-wrap;
+}
+
+@media (min-width: 768px) {
+  .x11-sales-bubble__text {
+    font-size: var(--x11-sales-font-size-body);
+    line-height: 24px;
+  }
+}
+
+/* Feedback row — thumbs only; the admin "Create correction" action is omitted */
+.x11-sales-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--x11-sales-p-space-1);
+  margin-top: var(--x11-sales-space-control);
+}
+
+.x11-sales-feedback__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--x11-sales-color-text);
+  cursor: pointer;
+  transition: color var(--x11-sales-duration-interactive) ease;
+}
+
+.x11-sales-feedback__btn:hover {
+  color: var(--x11-sales-color-primary);
+}
+
+.x11-sales-feedback__btn:focus-visible {
+  outline: var(--x11-sales-focus-width) solid var(--x11-sales-color-focus);
+  outline-offset: var(--x11-sales-focus-offset);
+}
+
+.x11-sales-feedback__btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Product recommendation — mirrors ProductRecommendation.tsx */
+.x11-sales-products {
+  display: flex;
+  flex-direction: column;
+  gap: var(--x11-sales-space-control);
+}
+
+.x11-sales-products--with-text {
+  margin-top: var(--x11-sales-space-control);
+}
+
+.x11-sales-product {
+  display: flex;
+  align-items: center;
+  gap: var(--x11-sales-space-content);
+  border-radius: var(--x11-sales-p-radius-sm);
+  color: inherit;
+  text-decoration: none;
+}
+
+.x11-sales-product:focus-visible {
+  outline: var(--x11-sales-focus-width) solid var(--x11-sales-color-focus);
+  outline-offset: var(--x11-sales-focus-offset);
+}
+
+.x11-sales-product__media,
+.x11-sales-product__placeholder {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--x11-sales-color-border);
+  border-radius: var(--x11-sales-p-radius-sm);
+}
+
+.x11-sales-product__media {
+  object-fit: cover;
+}
+
+.x11-sales-product__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--x11-sales-color-subtle-surface);
+  color: var(--x11-sales-color-text-muted);
+}
+
+.x11-sales-product__placeholder svg {
+  width: 20px;
+  height: 20px;
+}
+
+.x11-sales-product__meta {
+  min-width: 0;
+}
+
+.x11-sales-product__title {
+  display: block;
+  margin-bottom: var(--x11-sales-space-content);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--x11-sales-color-text-muted);
+}
+
+.x11-sales-product__price {
+  display: block;
+  font-weight: 600;
+  color: var(--x11-sales-color-text-strong);
+}
+
+/* ---------------------------------------------------------------------------
+   Quick replies — pre-defined messages
+   --------------------------------------------------------------------------- */
+
+.x11-sales-quick-replies {
+  flex: 0 1 auto;
+  max-height: 30%;
+  min-height: 0;
+  padding: var(--x11-sales-space-control) var(--x11-sales-space-section);
+  overflow-y: auto;
+  border-top: 1px solid var(--x11-sales-color-section-border);
+}
+
+.x11-sales-quick-replies[hidden] {
+  display: none;
+}
+
+.x11-sales-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--x11-sales-p-space-1-5);
+}
+
+.x11-sales-chip {
+  max-width: 100%;
+  padding: var(--x11-sales-p-space-1) var(--x11-sales-space-content);
+  overflow: hidden;
+  border: 1px solid var(--x11-sales-color-border);
+  border-radius: var(--x11-sales-p-radius-full);
+  background: var(--x11-sales-color-surface);
+  color: var(--x11-sales-color-text-strong);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: background-color var(--x11-sales-duration-interactive) ease;
+}
+
+.x11-sales-chip:hover {
+  background: var(--x11-sales-color-subtle-surface);
+}
+
+.x11-sales-chip:active {
+  background: var(--x11-sales-color-section-border);
+}
+
+.x11-sales-chip:focus-visible {
+  outline: var(--x11-sales-focus-width) solid var(--x11-sales-color-focus);
+  outline-offset: var(--x11-sales-focus-offset);
+}
+
+/* ---------------------------------------------------------------------------
+   Input — 42px light field with attach + send controls
+   --------------------------------------------------------------------------- */
+
+.x11-sales-composer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--x11-sales-p-space-3);
+  flex: 0 0 auto;
+  padding: 0 var(--x11-sales-space-section) var(--x11-sales-p-space-6);
+}
+
+.x11-sales-input-shell {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 42px;
+  padding: 0 var(--x11-sales-space-content);
+  border: 1px solid var(--x11-sales-input-border);
+  border-radius: var(--x11-sales-p-radius-md);
+  background: var(--x11-sales-input-bg);
+  transition:
+    border-color var(--x11-sales-duration-interactive) ease,
+    box-shadow var(--x11-sales-duration-interactive) ease;
+}
+
+.x11-sales-input-shell:focus-within {
+  border-color: var(--x11-sales-color-focus);
+  background: var(--x11-sales-input-bg);
+  box-shadow: 0 0 0 var(--x11-sales-focus-width)
+    var(--x11-sales-color-input-focus-shadow);
+}
+
+.x11-sales-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--x11-sales-input-text);
+  font: inherit;
+  font-size: var(--x11-sales-font-size-label);
+  letter-spacing: 0.02em;
+  outline: none;
+}
+
+.x11-sales-input::placeholder {
+  color: var(--x11-sales-color-placeholder);
+}
+
+.x11-sales-input-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--x11-sales-space-control);
+  margin-left: var(--x11-sales-space-content);
+}
+
+.x11-sales-attach {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--x11-sales-color-placeholder);
+  cursor: pointer;
+  transition: color var(--x11-sales-duration-interactive) ease;
+}
+
+.x11-sales-attach:hover {
+  color: var(--x11-sales-color-text-strong);
+}
+
+.x11-sales-attach:focus-visible,
+.x11-sales-send:focus-visible {
+  outline: var(--x11-sales-focus-width) solid var(--x11-sales-color-focus);
+  outline-offset: var(--x11-sales-focus-offset);
+}
+
+.x11-sales-attach svg {
+  width: 14px;
+  height: 14px;
+}
+
+.x11-sales-send {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--x11-sales-send-bg);
+  color: var(--x11-sales-send-text);
+  cursor: pointer;
+  transition: opacity var(--x11-sales-duration-interactive) ease;
+}
+
+.x11-sales-send:disabled {
+  cursor: not-allowed;
+  opacity: var(--x11-sales-opacity-disabled);
+}
+
+.x11-sales-send:not(:disabled):hover {
+  opacity: 0.9;
+}
+
+.x11-sales-send:not(:disabled):active {
+  opacity: 0.75;
+}
+
+.x11-sales-send svg {
+  width: 14px;
+  height: 14px;
+}
+
+.x11-sales-root--loading .x11-sales-send {
+  opacity: 0.75;
+}
+
+.x11-sales-root--loading .x11-sales-send svg {
+  visibility: hidden;
+}
+
+.x11-sales-root--loading .x11-sales-send::after {
+  position: absolute;
+  inset: 5px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  content: "";
+  animation: x11-sales-spin 0.7s linear infinite;
+}
+
+.x11-sales-root--error .x11-sales-input-shell,
+.x11-sales-root--error .x11-sales-input-shell:focus-within {
+  border-color: var(--x11-sales-color-error);
+  box-shadow: none;
+}
+
+.x11-sales-chip:disabled,
+.x11-sales-attach:disabled {
+  cursor: not-allowed;
+  opacity: var(--x11-sales-opacity-disabled);
+}
+
+.x11-sales-status {
+  margin: 0;
+  padding: 0 var(--x11-sales-space-section) var(--x11-sales-p-space-3);
+  color: var(--x11-sales-color-text-muted);
+  font-size: var(--x11-sales-font-size-label);
+  line-height: 1.4;
+}
+
+.x11-sales-status--error {
+  margin: 0 var(--x11-sales-space-section) var(--x11-sales-p-space-3);
+  padding: var(--x11-sales-space-control) var(--x11-sales-space-content);
+  border-radius: var(--x11-sales-p-radius-sm);
+  background: var(--x11-sales-status-error-bg);
+  color: var(--x11-sales-status-error-text);
+}
+
+.x11-sales-status[hidden] {
+  display: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Disclaimer (config text under the input)
+   --------------------------------------------------------------------------- */
+
+.x11-sales-disclaimer {
+  margin: 0;
+  padding: 0 var(--x11-sales-space-section) var(--x11-sales-p-space-3);
+  color: var(--x11-sales-color-placeholder);
+  font-size: var(--x11-sales-font-size-caption);
+  line-height: 1.4;
+  text-align: center;
+}
+
+.x11-sales-disclaimer[hidden] {
+  display: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Motion
+   --------------------------------------------------------------------------- */
+
+@keyframes x11-sales-pop {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes x11-sales-pop-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+
+@keyframes x11-sales-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .x11-sales-launcher,
+  .x11-sales-send,
+  .x11-sales-attach,
+  .x11-sales-header__close,
+  .x11-sales-feedback__btn,
+  .x11-sales-chip {
+    transition: none;
+  }
+  .x11-sales-panel,
+  .x11-sales-panel--closing,
+  .x11-sales-root--loading .x11-sales-send::after {
+    animation: none;
+  }
+}

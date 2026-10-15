@@ -1,0 +1,15 @@
+<script
+  src="{{ 'chatWidgetBootstrap.js' | asset_url }}"
+  data-chat-widget-bootstrap
+  data-widget-url="{{ 'chatWidget.js' | asset_url }}"
+  data-config-url="{{ 'chat-design.json' | asset_url }}"
+  defer
+></script>
+
+{% schema %}
+{
+  "name": "Chat widget",
+  "target": "body",
+  "settings": []
+}
+{% endschema %}
