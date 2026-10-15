@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Bootstrap config gate smoke test</title>
+    <script src="/build/chatWidgetBootstrap.js" defer></script>
+  </head>
+  <body>
+    <output id="result">pending</output>
+    <script>
+      addEventListener("load", async () => {
+        const result = document.getElementById("result");
+        const fetchOriginal = window.fetch;
+        let resolveConfig;
+        window.fetch = (url, options) => {
+          if (url === "/test/config") {
+            return new Promise((resolve) => {
+              resolveConfig = resolve;
+            });
+          }
+          if (url === "/test/fail") {
+            return Promise.resolve({ ok: false, status: 503 });
+          }
+          return fetchOriginal(url, options);
+        };
+
+        try {
+          const bootstrap = await ChatWidgetBootstrap.init({
+            widgetUrl: "/build/chatWidget.js",
+            configUrl: "/test/config",
+          });
+          const checks = {
+            hiddenBeforeConfig:
+              document.querySelectorAll(
+                "x11-sales-chat, x11-sales-chat-bootstrap",
+              ).length === 0,
+          };
+          resolveConfig({
+            ok: true,
+            json: async () => ({
+              data: {
+                aiAgentName: "Configured Assistant",
+                chatBubbleType: "type-bar",
+              },
+            }),
+          });
+          await bootstrap.ready;
+          checks.oneActualWidget =
+            document.querySelectorAll("x11-sales-chat").length === 1;
+          checks.noTemporaryLauncher =
+            document.querySelectorAll("x11-sales-chat-bootstrap").length === 0;
+          checks.configApplied =
+            bootstrap.widget?.settings.title === "Configured Assistant";
+          checks.panelStartsClosed = bootstrap.widget?.opened === false;
+          const mountedWidget = bootstrap.widget;
+          await bootstrap.open();
+          checks.sameWidgetAfterOpen =
+            bootstrap.widget === mountedWidget &&
+            document.querySelectorAll("x11-sales-chat").length === 1;
+
+          const failed = await ChatWidgetBootstrap.init({
+            widgetUrl: "/build/chatWidget.js",
+            configUrl: "/test/fail",
+          });
+          await failed.ready;
+          checks.hiddenAfterFailure =
+            document.querySelectorAll(
+              "x11-sales-chat, x11-sales-chat-bootstrap",
+            ).length === 0;
+          result.textContent = JSON.stringify(checks);
+        } catch (error) {
+          result.textContent = `ERROR: ${error.message}`;
+        } finally {
+          window.fetch = fetchOriginal;
+        }
+      });
+    </script>
+  </body>
+</html>

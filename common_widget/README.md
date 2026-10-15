@@ -1,6 +1,6 @@
 # 11x Sales chat widget
 
-A plain JavaScript chat widget built with Vite. A small bootstrap loads design settings and the launcher first; the full chat UI loads when a visitor opens it. The widget runs inside Shadow DOM. Vite is a development dependency; storefronts only load compiled JavaScript. Internal CSS classes and design tokens use the `x11-sales-` namespace.
+A plain JavaScript chat widget built with Vite. The bootstrap waits for design settings, then mounts the full widget with its final launcher. If the design request fails, nothing appears. The widget runs inside Shadow DOM. Vite is a development dependency; storefronts only load compiled JavaScript. Internal CSS classes and design tokens use the `x11-sales-` namespace.
 
 ## Development
 
@@ -30,7 +30,7 @@ npm run format
 | `src/styles.js` | Mount bundled CSS or an optional external stylesheet inside Shadow DOM |
 | `src/styles/widget.css` | Design tokens and component styles |
 | `src/browser.js` | Browser global and optional script-tag initialization |
-| `src/bootstrap.js` | Small launcher, design fetch, and interaction-triggered UI loading |
+| `src/bootstrap.js` | Design fetch and config-gated widget startup |
 | `src/transport.js` | HTTP chat sending and native WebSocket replies |
 | `src/loader.js` | Load a pinned release and reuse one mounted widget |
 | `vite.config.js` | Shared development and library build settings |
@@ -41,7 +41,7 @@ See [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md) for the token contract and [MULTI_PLATF
 
 ## Install on a storefront
 
-Upload the chosen `dist/releases/<version>/` folder to your asset host, preserving the paths. Then install the lazy bootstrap:
+Upload the chosen `dist/releases/<version>/` folder to your asset host, preserving the paths. Then install the bootstrap:
 
 ```html
 <script src="https://cdn.example.com/releases/1.3.2/chatWidgetBootstrap.js"
@@ -51,7 +51,7 @@ Upload the chosen `dist/releases/<version>/` folder to your asset host, preservi
         defer></script>
 ```
 
-The bootstrap fetches the design JSON and shows a lightweight launcher. It downloads `chatWidget.js` only when the visitor hovers, focuses, or opens the launcher. The full UI mounts on open. Repeated bootstrap initialization replaces the previous launcher. Pin both script URLs to the same version and reload the page after changing that version.
+The bootstrap fetches the design JSON before loading `chatWidget.js`. The full widget and its launcher appear together after valid design settings arrive. If the request fails or returns invalid data, the widget stays hidden. Repeated bootstrap initialization replaces the previous widget. Pin both script URLs to the same version and reload the page after changing that version.
 
 The older `chatWidgetLoader.js` remains available for integrations that need to mount the full widget immediately.
 
@@ -84,7 +84,7 @@ These are configurable integration points until the backend endpoint and socket 
 
 | Method or option | Purpose |
 | --- | --- |
-| `ChatWidgetBootstrap.init(options)` | Show a lightweight launcher and load the full widget on interaction |
+| `ChatWidgetBootstrap.init(options)` | Load config, then mount the full widget; stay hidden on config failure |
 | `ChatWidget.init(options)` | Create the full widget directly; replaces the previous instance |
 | `widget.ready` | Resolves to applied configuration, or null if unavailable |
 | `widget.styleReady` | Resolves to whether styles loaded |
@@ -121,6 +121,7 @@ With Vite running, open:
 
 - `/tests/design-system-smoke.html` for source styles, states, and viewport layout.
 - `/tests/release-smoke.html` for the packaged release, duplicate mounting, isolation, and lifecycle.
-- `/tests/lazy-smoke.html` for loading the launcher before the full chat bundle.
+- `/tests/lazy-smoke.html` for mounting the configured widget before interaction.
+- `/tests/bootstrap-gate-smoke.html` for delayed config, stable launcher, and failed config behavior.
 
 Each page prints named checks; all should be `true`. The release fixture defaults to `1.3.2` and accepts `?version=<version>` to check another release.
