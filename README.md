@@ -308,6 +308,9 @@ You can also release from the **Dev Dashboard** under your app's versions.
 
 ### Step 2 — Install the app on a store
 
+> Shipping the extension inside your **own** app instead of this repo's app?
+> Skip to [Using this extension with an existing app](#using-this-extension-with-an-existing-app-legacy-callback-install).
+
 Extension-only apps use **custom distribution**. If the app is not installed on
 the store yet:
 
@@ -382,6 +385,99 @@ Use `--no-release` if you want CI to create versions that you release manually.
 | `pnpm exec shopify app versions` | List deployed versions |
 | `pnpm info` | Show the linked app, organization, and dev store |
 | `pnpm config:validate` | Validate `shopify.app.toml` and extension configs |
+
+---
+
+## Using this extension with an existing app (legacy callback install)
+
+The rest of this README assumes you deploy this repo's own app. If you already
+have a Shopify app that you install yourself — for example a **legacy OAuth
+callback URL** flow with a **non-embedded** app — ship the extension with *that*
+app instead.
+
+This works because a theme app extension needs none of an app's front end:
+there is no admin UI, no iframe, and no backend involved. It only has to be
+bundled into the app version that gets installed on the store. A non-embedded
+app with a legacy install flow is perfectly fine.
+
+### Recommended: add the extension to your existing app project
+
+1. **Copy the extension folder** into your app's `extensions/` directory:
+
+   ```
+   your-app/
+   ├── extensions/
+   │   └── 11x-sales-agent/          ← copied from this repo
+   │       ├── assets/
+   │       ├── blocks/
+   │       ├── locales/
+   │       ├── snippets/
+   │       └── shopify.extension.toml
+   ├── shopify.app.toml              ← your existing app config, unchanged
+   └── package.json
+   ```
+
+2. **Remove the `uid` line** from
+   `extensions/11x-sales-agent/shopify.extension.toml`. The `uid` is
+   *app-scoped* — the value in this repo belongs to this repo's app. Shopify CLI
+   regenerates uids from the extension handle during `deploy`, so let it own
+   that value and commit whatever it writes.
+
+3. **Keep your own `shopify.app.toml` exactly as it is** — your `client_id`,
+   `application_url`, `[auth] redirect_urls` (your legacy callback URL), scopes,
+   and `embedded = false`.
+
+4. **Deploy from your app project:**
+
+   ```shell
+   shopify app deploy
+   ```
+
+   In the confirmation summary the extension should appear as **new**. Watch
+   for anything marked *removed* — that would indicate a mapping problem.
+
+5. **Install on the store using your existing flow.** Nothing about the install
+   changes; once the app is installed, the block appears in the theme editor.
+
+6. **Enable the block and set the Agent ID.** Installing the app alone does not
+   display the widget — app embeds are inactive until a merchant turns them on
+   in the theme editor.
+
+### ⚠️ Don't deploy this repo's config against your app
+
+`shopify.app.toml` in this repo has `include_config_on_deploy = true`, so
+`shopify app deploy` ships the local config **as the app's configuration**. This
+repo's config points at Shopify's placeholder App Home
+(`https://shopify.dev/apps/default-app-home`), sets `embedded = true`, and
+declares **no** `redirect_urls`.
+
+Pointed at your app, that would replace your real app URL and redirect URLs and
+**break your legacy callback install**. Always read the config-change summary
+before confirming a deploy.
+
+### Alternative: point this repo at your app
+
+If you'd rather keep this repo as the extension's home, make `shopify.app.toml`
+mirror your app, then deploy from here:
+
+```toml
+client_id = "<your app's client id>"
+application_url = "<your app's URL>"
+embedded = false                     # non-embedded app
+
+[auth]
+redirect_urls = [ "<your legacy callback URL>" ]
+```
+
+Carry over your real scopes and webhooks too. Keeping the app config in two
+places drifts over time, which is why copying the folder into your app is the
+safer option.
+
+### Check for a double-loaded widget
+
+If your app currently injects the widget with the **ScriptTag API**, remove that
+injection when you switch to the theme app extension. Otherwise the storefront
+loads the widget twice — once from your script tag and once from the block.
 
 ---
 
