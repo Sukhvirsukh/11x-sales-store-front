@@ -1,0 +1,21 @@
+{
+  "name": "11x-sales-agent",
+  "version": "1.0.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "shopify": "shopify",
+    "dev": "shopify app dev",
+    "build": "shopify app build",
+    "deploy": "shopify app deploy",
+    "info": "shopify app info",
+    "generate": "shopify app generate",
+    "config:validate": "shopify app config validate"
+  },
+  "devDependencies": {
+    "@shopify/cli": "^4.9.3"
+  }
+}

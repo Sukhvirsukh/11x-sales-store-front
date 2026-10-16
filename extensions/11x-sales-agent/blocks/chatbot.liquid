@@ -1,0 +1,25 @@
+{% assign agent_id = block.settings.agent_id | strip | split: '/' | last | split: '?' | first | strip %}
+
+{% if agent_id != blank %}
+  <script src="https://agent.11xsales.ai/widget.js" data-agent="{{ agent_id | escape }}" defer></script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Chatbot",
+  "target": "body",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "Script URL (fixed): https://agent.11xsales.ai/c/"
+    },
+    {
+      "type": "text",
+      "id": "agent_id",
+      "label": "Agent ID",
+      "placeholder": "5a3f3f9b-d6a0-4195-a77e-f4751534bcc1",
+      "info": "The storefront loads the chatbot from https://agent.11xsales.ai/widget.js and passes this ID as data-agent. A full share link works too - the ID is read from the end of it."
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,21 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+#
+# This is an extension-only app: it is made up entirely of app extensions and
+# has no developer-hosted backend, so `application_url` points at Shopify's
+# hosted default App Home instead of a URL you host.
+
+client_id = "f65cf58ecfab57bb8bce500cc45fc639"
+name = "11x-sales-agent"
+application_url = "https://shopify.dev/apps/default-app-home"
+embedded = true
+
+[build]
+include_config_on_deploy = true
+
+# Required by the app config schema. There is no backend to receive them, so no
+# redirect targets or webhook subscriptions are declared.
+[auth]
+redirect_urls = []
+
+[webhooks]
+api_version = "2027-01"

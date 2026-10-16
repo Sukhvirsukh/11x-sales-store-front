@@ -1,0 +1,45 @@
+# ─── Dependencies ────────────────────────────────────────────────────────────
+node_modules/
+.pnpm-store/
+
+# ─── Build output ────────────────────────────────────────────────────────────
+dist/
+build/
+/extensions/*/dist
+
+# ─── Caches ──────────────────────────────────────────────────────────────────
+.cache/
+.turbo/
+.eslintcache
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ─── Environment variables ───────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ─── Shopify CLI local state (created during app dev) ────────────────────────
+.shopify/
+.shopify.lock
+
+# ─── Local tooling / editor config ───────────────────────────────────────────
+.freebuff/
+.cursor/
+.gemini/
+.mcp.json
+
+# ─── OS / editor junk ────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
