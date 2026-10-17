@@ -1,26 +1,43 @@
-# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+# The production 11xsales.ai Shopify app (Dev Dashboard: "11xsales"). Deploy with
+# `shopify app deploy`: it pushes this configuration and the chat theme extension.
+# The app's server is the 11xsales.ai API (core.11xsales.ai); nothing here runs a server.
+# See DEPLOY.md.
 
-client_id = "fca887aa9eda252667cb552e02c6cd1e"
-name = "11x-sales"
-application_url = "https://app.11xsales.ai/"
+client_id = "0980007a3d98625fc71739c9ee8a9d22"
+name = "11xsales"
+# Where Shopify sends a merchant who installs or opens the app. The API checks
+# Shopify's signature and signs them in with "Continue with Shopify".
+application_url = "https://core.11xsales.ai/api/v1/shopify/install"
 embedded = false
 
 [access_scopes]
-scopes = ""
-
-[webhooks]
-api_version = "2027-01"
-
-  [[webhooks.subscriptions]]
-  uri = "/webhooks/app/uninstalled"
-  topics = [ "app/uninstalled" ]
-
-  [[webhooks.subscriptions]]
-  uri = "/webhooks/app/scopes_update"
-  topics = [ "app/scopes_update" ]
+# What the AI agent and the store sync read. Orders and customers are protected
+# customer data: request access in the Partner Dashboard (API access › Protected customer data).
+scopes = "read_products,read_content,read_orders,read_customers,read_inventory,read_locations"
+# The API connects stores with OAuth (authorization code), not Shopify-managed installation.
+use_legacy_install_flow = true
 
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [
+  "https://core.11xsales.ai/api/v1/auth/oauth/shopify/callback",
+  "https://core.11xsales.ai/api/v1/integrations/shopify/callback",
+]
+
+[webhooks]
+api_version = "2026-10"
+
+  # One endpoint for every topic; the API reads X-Shopify-Topic and checks the HMAC.
+  [[webhooks.subscriptions]]
+  topics = [ "app/uninstalled", "app_subscriptions/update" ]
+  uri = "https://core.11xsales.ai/api/v1/webhooks/shopify"
+
+  # Mandatory privacy webhooks (required for the App Store).
+  [[webhooks.subscriptions]]
+  compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
+  uri = "https://core.11xsales.ai/api/v1/webhooks/shopify"
+
+[pos]
+embedded = false
 
 [build]
 include_config_on_deploy = true
