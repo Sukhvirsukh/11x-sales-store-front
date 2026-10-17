@@ -75,23 +75,86 @@ settings the merchant sees in the theme editor.
 ### How the Chatbot block works
 
 ```liquid
-{% assign agent_id = block.settings.agent_id | strip | split: '/' | last | split: '?' | first | strip %}
+{% assign agent_id = app.metafields.chatbot.agent_id.value | strip %}
+{% if agent_id == blank %}
+  {% assign agent_id = block.settings.agent_id | strip %}
+{% endif %}
+{% assign agent_id = agent_id | split: '?' | first | split: '#' | first | split: '/' | last | strip %}
 
 {% if agent_id != blank %}
   <script src="https://agent.11xsales.ai/widget.js" data-agent="{{ agent_id | escape }}" defer></script>
 {% endif %}
 ```
 
-1. It reads the **Agent ID** setting the merchant saved.
-2. It normalises it: if a full share link (`https://agent.11xsales.ai/c/<id>`)
-   or a URL with a query string was pasted, it keeps only the last path segment
-   before any `?`. A bare ID also works.
-3. If an ID is present, it outputs a `<script>` tag that loads the widget with
+1. It reads the **Agent ID saved by the installation backend** from the app-data
+   metafield `chatbot.agent_id` on the current store's app installation.
+2. If that value is missing, empty, or whitespace-only, it reads the existing
+   **Agent ID (fallback)** theme setting. The automatic value takes priority.
+3. It normalises it: a bare ID or full share link
+   (`https://agent.11xsales.ai/c/<id>`) works. Query strings and fragments are
+   removed before extracting the last path segment.
+4. If an ID is present, it outputs a `<script>` tag that loads the widget with
    that ID as `data-agent`. `defer` keeps it off the critical rendering path.
-4. If no Agent ID is set, **nothing is output** — the widget never loads.
+5. If no Agent ID is set, **no script is output** — the widget never loads.
 
-So the Agent ID is configuration, not code. The merchant sets it in the theme
-editor; you don't redeploy to change it.
+The Agent ID is per-store configuration. Once this extension version is deployed,
+changing a store's saved ID does not require redeployment. It does not belong in
+this project's `.env` or generated TOML.
+
+### Connect an Agent ID from the installation backend
+
+This repository implements the **reader**. The separate installation backend must
+implement the **writer** below; installing the app alone does not save an Agent ID.
+Both projects must target the same Shopify app/client ID.
+
+After verifying the OAuth callback and obtaining that shop's Admin API access token:
+
+1. Resolve or create the agent belonging to the authenticated merchant/store.
+   Store the canonical Agent ID in your backend's shop-to-agent mapping.
+2. Query `currentAppInstallation` through the Admin GraphQL API and select its
+   `id`. Use this ID as the owner, not the shop ID or another store's installation.
+3. Call `metafieldsSet` with one input in its `metafields` list:
+
+   | Input field | Value |
+   | --- | --- |
+   | `ownerId` | The `currentAppInstallation.id` returned for this shop |
+   | `namespace` | `chatbot` |
+   | `key` | `agent_id` |
+   | `type` | `single_line_text_field` |
+   | `value` | The canonical Agent ID for this store |
+
+4. Check HTTP failures, GraphQL `errors`, and mutation `userErrors` before marking
+   setup complete. Retry failed writes without creating duplicate agents.
+5. Verify the saved value by querying `currentAppInstallation.metafield` with
+   namespace `chatbot` and key `agent_id`, selecting `value`.
+6. Send the merchant to the theme editor to enable **Chatbot** under **App embeds**
+   and **Save**. They do not need to enter the ID when the automatic value is saved.
+
+This uses an **app-data metafield on AppInstallation**, not a shop or product
+metafield. It does not require a TOML metafield definition. Shopify documents the
+installation lookup, write operation, and Liquid access in
+[App-data metafields](https://shopify.dev/docs/apps/build/metafields#app-data-metafields).
+
+Repeat the write when the merchant changes their connected agent and after
+reinstallation, using the current installation ID. Existing installations can be
+backfilled using each shop's valid token and existing agent mapping. API calls and
+tokens stay in the backend; the rendered Agent ID is visible in storefront HTML.
+
+The manual setting is a fallback, not an override. To return a store to manual
+configuration, delete its `chatbot.agent_id` app-data metafield. Clearing the manual
+field does not disable an automatically configured widget; turn off the app embed
+to disable it. App embed activation still requires the merchant to save the theme.
+
+#### Verify the integration on a development store
+
+- With the app-data metafield absent, save a manual ID and confirm it appears in
+  the script's `data-agent` attribute.
+- Save a different automatic ID and confirm it takes precedence over the manual ID.
+- Remove the automatic value and confirm the manual fallback works again.
+- Clear both sources and confirm no `widget.js` script is rendered.
+- Try a full share URL with a query string/fragment and confirm only the ID is used.
+- Disable the embed and confirm no widget script is rendered, even with a saved ID.
+- Verify a second store uses its own installation's ID.
 
 ---
 
@@ -213,10 +276,8 @@ This store is already linked in this repo (`11x-sales.myshopify.com`), so the
 prompts are usually skipped. To see the widget:
 
 1. Open the **theme editor** link from the CLI output.
-2. Turn the block on:
-   - **App embeds** (the toggle icon at the bottom-left) → enable **Chatbot**, or
-   - **Sections → Add block → Apps → Chatbot** to place it inline.
-3. Paste your **Agent ID** and click **Save**.
+2. Under **App embeds**, enable **Chatbot**.
+3. If the backend has not saved an ID, enter **Agent ID (fallback)**. Click **Save**.
 4. Open the **preview** URL printed at the bottom of the CLI output.
 5. In the browser DevTools console, confirm the script request:
    `https://agent.11xsales.ai/widget.js`.
@@ -272,7 +333,8 @@ This verifies the **widget itself** (script URL, agent ID, rendering). It does
 - **The Star Rating block needs data.** It reads a product's
   `demo.avg_rating` metafield (namespace `demo`, key `avg_rating`, type
   **Integer**). Create that metafield definition and set a value on a product,
-  or the block renders blank. The Chatbot block needs no metafields.
+  or the block renders blank. The Chatbot uses an app-data metafield for automatic
+  setup, but also works with just the manual fallback setting.
 - **You need a real Agent ID.** Without one the Chatbot block outputs nothing,
   by design.
 
@@ -349,10 +411,8 @@ Installing the app does not display anything by itself; the merchant turns the
 block on:
 
 1. **Online Store → Themes → Customize** (on the target store).
-2. Enable the block:
-   - **App embeds** → toggle **Chatbot** on (loads it on every page), or
-   - **Sections → Add block → Apps → Chatbot** (places it inline).
-3. Enter the **Agent ID** and **Save**.
+2. Under **App embeds**, toggle **Chatbot** on (loads it site-wide).
+3. If the backend has not saved an ID, enter **Agent ID (fallback)**. Click **Save**.
 
 ### Step 4 — Verify
 
@@ -374,9 +434,9 @@ You don't reinstall. Change the code, then deploy again:
 2. Wait a few minutes for the release to roll out.
 3. Reload the storefront.
 
-The merchant's saved block settings (including the Agent ID) are preserved
-across app versions. If you only need to change the **Agent ID**, no deploy is
-needed at all — edit it in the theme editor.
+The merchant's saved block settings are preserved across app versions. To change
+the automatic Agent ID, update the installation metafield from your backend. If
+using manual setup, edit the fallback ID in the theme editor. Neither needs a deploy.
 
 ### Deploying from CI/CD
 
@@ -454,9 +514,9 @@ app with a legacy install flow is perfectly fine.
 5. **Install on the store using your existing flow.** Nothing about the install
    changes; once the app is installed, the block appears in the theme editor.
 
-6. **Enable the block and set the Agent ID.** Installing the app alone does not
-   display the widget — app embeds are inactive until a merchant turns them on
-   in the theme editor.
+6. **Save the Agent ID from your backend and enable the embed.** Follow the
+   installation-backend steps above, or use the manual fallback field. App embeds
+   remain inactive until a merchant enables them and saves in the theme editor.
 
 ### ⚠️ Don't deploy this repo's config against your app
 
@@ -506,15 +566,10 @@ with `pnpm dev`, then `pnpm deploy` to release.
 
 ### Change the Agent ID
 
-The Agent ID is a **merchant setting**, not a code change — set it in the theme
-editor. To lock the extension to a single agent (no setting for the merchant),
-replace the block body with a hard-coded ID:
-
-```liquid
-<script src="https://agent.11xsales.ai/widget.js" data-agent="YOUR-AGENT-ID" defer></script>
-```
-
-Then deploy.
+Update `chatbot.agent_id` on that shop's app installation from the backend.
+For stores without an automatic ID, edit **Agent ID (fallback)** in the theme editor.
+The automatic value takes priority; changing the manual field will not override it.
+Neither change requires deploying the extension.
 
 ### Remove the sample Star Rating block
 
@@ -552,8 +607,14 @@ template's sample block, then deploy again.
   `pnpm deploy`), or install the CLI globally with
   `npm install -g @shopify/cli@latest`.
 - **The widget doesn't appear** — check, in order: the **Chatbot** app embed is
-  toggled on (or the block is added), an **Agent ID** is saved, the theme was
+  toggled on, an automatic or fallback **Agent ID** is saved, the theme was
   **Saved**, and the app version was actually **released**.
+- **The manual ID is ignored** — the automatic `chatbot.agent_id` value takes
+  priority. Update it from your backend or delete it to use the manual fallback.
+- **Automatic setup is missing** — confirm the backend wrote to the current
+  `AppInstallation` for the same app/client ID and shop, using namespace `chatbot`,
+  key `agent_id`, and type `single_line_text_field`. Check API errors and read the
+  value back. This repository does not run the installation callback.
 - **Changes aren't showing on a store** — releases take a few minutes to roll
   out; confirm the version was released (`shopify app versions`).
 - **The block isn't listed in the theme editor** — the theme must be an Online

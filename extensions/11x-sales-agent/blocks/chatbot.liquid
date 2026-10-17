@@ -1,4 +1,8 @@
-{% assign agent_id = block.settings.agent_id | strip | split: '/' | last | split: '?' | first | strip %}
+{% assign agent_id = app.metafields.chatbot.agent_id.value | strip %}
+{% if agent_id == blank %}
+  {% assign agent_id = block.settings.agent_id | strip %}
+{% endif %}
+{% assign agent_id = agent_id | split: '?' | first | split: '#' | first | split: '/' | last | strip %}
 
 {% if agent_id != blank %}
   <script src="https://agent.11xsales.ai/widget.js" data-agent="{{ agent_id | escape }}" defer></script>
@@ -11,14 +15,14 @@
   "settings": [
     {
       "type": "paragraph",
-      "content": "Script URL (fixed): https://agent.11xsales.ai/c/"
+      "content": "Your agent is connected automatically during app setup. If it has not been connected yet, enter an Agent ID below."
     },
     {
       "type": "text",
       "id": "agent_id",
-      "label": "Agent ID",
+      "label": "Agent ID (fallback)",
       "placeholder": "5a3f3f9b-d6a0-4195-a77e-f4751534bcc1",
-      "info": "The storefront loads the chatbot from https://agent.11xsales.ai/widget.js and passes this ID as data-agent. A full share link works too - the ID is read from the end of it."
+      "info": "Used only when no agent is connected automatically. Paste an Agent ID or a full agent share link."
     }
   ]
 }
