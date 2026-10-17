@@ -1,27 +1,14 @@
-{%- comment -%}
-  The 11xsales.ai chat (app embed). The store's agent id is saved on the app's
-  installation by the 11xsales.ai API when the store connects, so the merchant only
-  switches this embed on; there is nothing to paste. The widget itself loads
-  asynchronously from agent.11xsales.ai and takes its design from the dashboard.
-{%- endcomment -%}
-{%- assign agent_id = app.metafields.elevenx.agent_id.value -%}
-{%- if agent_id != blank -%}
-  <script
-    src="https://agent.11xsales.ai/widget.js"
-    data-agent="{{ agent_id | escape }}"
-    data-platform="shopify"
-    data-shop="{{ shop.permanent_domain | escape }}"
-    async
-  ></script>
-{%- elsif request.design_mode -%}
-  <div style="position:fixed;right:16px;bottom:16px;z-index:2147483000;max-width:320px;padding:12px 14px;border-radius:10px;background:#fff;color:#16181d;box-shadow:0 4px 18px rgba(0,0,0,.15);font:14px/1.4 system-ui,sans-serif">
-    {{ 'chat.not_connected' | t }}
-  </div>
-{%- endif -%}
+<script
+  src="{{ 'chatWidgetBootstrap.js' | asset_url }}"
+  data-chat-widget-bootstrap
+  data-widget-url="{{ 'chatWidget.js' | asset_url }}"
+  data-config-url="{{ 'chat-design.json' | asset_url }}"
+  defer
+></script>
 
 {% schema %}
 {
-  "name": "11xsales.ai chat",
+  "name": "Chat widget",
   "target": "body",
   "settings": []
 }
