@@ -22,6 +22,7 @@ yarn-error.log*
 # ─── Environment variables ───────────────────────────────────────────────────
 .env
 .env.*
+!.env.example
 
 # ─── Shopify CLI local state (created during app dev) ────────────────────────
 .shopify/
