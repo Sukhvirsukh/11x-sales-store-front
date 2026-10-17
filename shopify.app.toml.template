@@ -1,0 +1,16 @@
+# Generated from .env by scripts/generate-shopify-config.mjs. Do not edit directly.
+# Edit this template for configuration not supplied through environment variables.
+
+client_id = {{SHOPIFY_API_KEY}}
+name = {{SHOPIFY_APP_NAME}}
+application_url = {{SHOPIFY_APP_URL}}
+embedded = {{SHOPIFY_APP_EMBEDDED}}
+
+[build]
+include_config_on_deploy = true
+
+[auth]
+redirect_urls = {{SHOPIFY_AUTH_REDIRECT_URLS}}
+
+[webhooks]
+api_version = {{SHOPIFY_WEBHOOK_API_VERSION}}

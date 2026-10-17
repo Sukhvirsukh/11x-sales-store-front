@@ -142,7 +142,22 @@ extension is uploaded as-is.
 
 ```shell
 pnpm install
+cp .env.example .env # only if you don't already have a .env file
 ```
+
+Set the app's client ID, name, URL, embedded setting, callback URLs, and webhook
+API version in `.env`. Keep client secrets and merchant access tokens in your
+installation backend; this extension does not need them. `.env` is ignored by Git.
+
+The package scripts regenerate `shopify.app.toml` from `.env` and
+`shopify.app.toml.template` before running Shopify CLI. Process environment
+variables take precedence over `.env`, so CI can supply these values directly.
+Use `pnpm config:generate` to regenerate the file on its own. Direct commands
+such as `pnpm exec shopify ...` bypass this step; run `pnpm config:generate` first.
+Edit the template for additional settings such as scopes, legacy installation
+configuration, or webhook subscriptions; edits to the generated TOML are overwritten.
+The initial placeholder app URL and empty callback list still need to be updated
+to match your installation backend before deployment.
 
 `shopify.app.toml` already contains the app's `client_id`, so the CLI links to
 the existing app instead of creating a new one. Confirm the link at any time:

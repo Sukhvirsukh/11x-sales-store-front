@@ -7,13 +7,14 @@
     "node": ">=22.12"
   },
   "scripts": {
-    "shopify": "shopify",
-    "dev": "shopify app dev",
-    "build": "shopify app build",
-    "deploy": "shopify app deploy",
-    "info": "shopify app info",
-    "generate": "shopify app generate",
-    "config:validate": "shopify app config validate"
+    "config:generate": "node scripts/generate-shopify-config.mjs",
+    "shopify": "node scripts/generate-shopify-config.mjs && shopify",
+    "dev": "node scripts/generate-shopify-config.mjs && shopify app dev",
+    "build": "node scripts/generate-shopify-config.mjs && shopify app build",
+    "deploy": "node scripts/generate-shopify-config.mjs && shopify app deploy",
+    "info": "node scripts/generate-shopify-config.mjs && shopify app info",
+    "generate": "node scripts/generate-shopify-config.mjs && shopify app generate",
+    "config:validate": "node scripts/generate-shopify-config.mjs && shopify app config validate"
   },
   "devDependencies": {
     "@shopify/cli": "^4.9.3"
